@@ -57,6 +57,43 @@
     // 圆形
     let cir2 = graphObjects[6];
 
+    function setDesc() {
+      const ctx = hands.getCtx();
+      ctx.save();
+      ctx.font = "italic bold 16px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#666";
+      ctx.shadowColor = "#fff"; // 发光颜色
+      ctx.shadowBlur = 5; // 模糊半径
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+      graphSet.forEach((item) => {
+        ctx.beginPath();
+        let x, y;
+        switch (item.category) {
+          case "line":
+          case "polygon":
+            let lst = item.category == "line" ? item.path : item.dots;
+            let len = lst.length;
+            x = lst.map((e) => e.x).reduce((a, b) => a + b) / len;
+            y = lst.map((e) => e.y).reduce((a, b) => a + b) / len;
+            break;
+          case "rect":
+            x = item.position[0] + item.position[2] / 2;
+            y = item.position[1] + item.position[3] / 2;
+            break;
+          case "circle":
+            x = item.x;
+            y = item.y;
+            break;
+        }
+        ctx.fillText(item.desc, x, y);
+        ctx.closePath();
+      });
+      ctx.restore();
+    }
+    // setDesc();
     // 线段缩放
     // scaleLine();
     function scaleLine() {
@@ -81,7 +118,9 @@
             evtMng.removeEvent(evtid);
           }
           t++;
-          hands.refresh();
+          hands.refresh().then(() => {
+            setDesc();
+          });
         },
       });
     }
@@ -111,13 +150,15 @@
             evtMng.removeEvent(evtid);
           }
           t++;
-          hands.refresh();
+          hands.refresh().then(() => {
+            setDesc();
+          });
         },
       });
     }
 
     // 旋转图形
-    rotateGraph();
+    // rotateGraph();
     function rotateGraph() {
       let duration = random(1, 4) * 10000;
       let t = 0;
@@ -150,7 +191,7 @@
             rotateGraph();
           }
           t++;
-          hands.refresh();
+          hands.refresh().then(() => setDesc);
         },
       });
     }
@@ -176,18 +217,20 @@
           // hands.setLinesColor(`hsl(${lineColor}, 100%, 50%)`);
           hands.setLineColor(`hsl(${lineColor}, 100%, 50%)`, lines[0]);
           hands.setGraphSideColor(`hsl(${colorSide}, 100%, 50%)`, polygon32);
-          hands.refresh();
+          hands.refresh().then(() => {
+            setDesc();
+          });
         },
       });
     }
 
     // 缩放图形
-    setInterval(() => {
-      const PA = [polygon, polygon2, polygon32, polygon4, cir, cir2];
-      const graph = PA[random(0, PA.length - 1)];
-      // hands.updateGraphZoom(cir2, random(0.5, 2.5));
-      scaleGraph(graph);
-    }, 3000);
+    // setInterval(() => {
+    //   const PA = [polygon, polygon2, polygon32, polygon4, cir, cir2];
+    //   const graph = PA[random(0, PA.length - 1)];
+    //   // hands.updateGraphZoom(cir2, random(0.5, 2.5));
+    //   scaleGraph(graph);
+    // }, 3000);
     function scaleGraph(graph) {
       let duration = 2000;
       let t = 0;
@@ -209,7 +252,7 @@
             evtMng.removeEvent(evtid);
           }
           t++;
-          hands.refresh();
+          hands.refresh().then(() => setDesc);
         },
       });
     }
